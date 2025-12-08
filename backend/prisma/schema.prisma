@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum NetworkType {
+  DEVNET
+  MAINNET
+}
+
+enum Status {
+  ACTIVE
+  REVOKED
+}
+
+enum TokenAction {
+  MINT
+  BURN
+}
+
+// Stores Token Information - Creator, Supply, Address, Who has mint/freeze authority and stuff
+// Owner has the freeze and mint authority, no need to define it explicitely
+model TokenInformation {
+  id                    String      @id @default(uuid())
+  mintAddress           String      @unique
+  ownerWallet           String
+  network               NetworkType @default(DEVNET)
+  tokenName             String
+  tokenSymbol           String
+  decimals              String
+  initalSupply          String
+  currentSupply         String
+  tokenImageUrl         String
+  description           String
+  mintAuthorityStatus   Status      @default(ACTIVE)
+  freezeAuthorityStatus Status      @default(ACTIVE)
+  createdAt             DateTime
+}
+
+// Stores Token Supply Information - Who changed the supply, did he increase/decrease the supply mint/burn by amount and stuff once
+// change either mint/burn update the status in token table
+model TokenSupplyInformation {
+  id                   String      @id @default(uuid())
+  mintAddress          String
+  actionType           TokenAction
+  amount               String
+  executedByWallet     String
+  transactionSignature String
+  createdAt            DateTime
+}
+
+// This table is for authority details, if tokens authority changed, who is the current owner, who was the old owner and stuff
+model TokenAuthorityInformation {
+  id                   String   @id @default(uuid())
+  mintAddress          String
+  oldOwner             String
+  newOwner             String
+  transactionSignature String
+  createdAt            DateTime
+}
