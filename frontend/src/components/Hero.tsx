@@ -1,6 +1,12 @@
+"use client"
+import { redirect } from "next/navigation";
 import { Button } from "./button";
 
 export default function Hero() {
+
+  const handleMintClick = () => {
+    redirect("/mint");
+  }
   return (
     <>
       <div className="w-full h-3/4 border-b-2 border-black pb-8 relative">
@@ -34,7 +40,7 @@ export default function Hero() {
                 Stop worrying about Solidity, auditing, or deployment scripts. Just fill out a simple form and launch your custom token in seconds.
               </span>
               <div>
-                <Button name={"START MINTING NOW"} disabled={false} varient="primary" />
+                <Button name={"START MINTING NOW"} disabled={false} varient="primary" onClick={() => handleMintClick()}/>
               </div>
             </div>
           </div>
