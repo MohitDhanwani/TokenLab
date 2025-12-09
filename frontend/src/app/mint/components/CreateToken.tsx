@@ -3,9 +3,27 @@ import { Box } from "lucide-react";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/button";
+import { TokenFormSchema, TokenFormType } from "@/data/FormData";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 export default function CreateToken() {
-  const form = useForm();
+  const form = useForm<TokenFormType>({
+    resolver: zodResolver(TokenFormSchema),
+    defaultValues: {
+      TokenName: "",
+      Symbol: "",
+      Decimals: "",
+      TotalSupply: "",
+      Description: "",
+    },
+  });
+
+  const handleFormSubmit = async (data: TokenFormType) => {
+    console.log(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
+    const backendMintRequest = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintTokens`, data);
+    console.log(backendMintRequest);
+  };
 
   return (
     <div className="w-full border-2 border-black mt-10 p-1">
@@ -15,44 +33,21 @@ export default function CreateToken() {
             <Box color="white" />
           </div>
           <h1 className="text-3xl font-bold font-mono">CREATE TOKEN</h1>
-          <div className="font-mono">
-            Fill the details below to deploy your own cryptocurrency. No code needed.
-          </div>
+          <div className="font-mono">Fill the details below to deploy your own cryptocurrency. No code needed.</div>
         </div>
 
         <div className="pt-8">
           <Form {...form}>
-            <form className="flex flex-col gap-8">
-              <FormInput
-                label="TOKEN NAME"
-                name="TokenName"
-                classname={"bg-primary py-7 px-4 text-xl!"}
-                placeholder="e.g. Billy Token"
-              />
+            <form className="flex flex-col gap-8" onSubmit={form.handleSubmit(handleFormSubmit)}>
+              <FormInput label="TOKEN NAME" name="TokenName" classname={"bg-primary py-7 px-4 text-xl!"} placeholder="e.g. Billy Token" />
 
               <div className="flex gap-4 w-full max-w-3xl">
-                <FormInput
-                  label="TOKEN SYMBOL"
-                  name="Symbol"
-                  classname={"bg-primary py-7 px-4 text-xl!"}
-                  placeholder="e.g. MSH"
-                />
+                <FormInput label="TOKEN SYMBOL" name="Symbol" classname={"bg-primary py-7 px-4 text-xl!"} placeholder="e.g. MSH" />
 
-                <FormInput
-                  label="DECIMALS"
-                  name="Decimals"
-                  classname={"bg-primary py-7 px-4 text-xl!"}
-                  type="number"
-                  placeholder="e.g. 6"
-                />
+                <FormInput label="DECIMALS" name="Decimals" classname={"bg-primary py-7 px-4 text-xl!"} placeholder="e.g. 6" />
               </div>
 
-              <FormInput
-                label="TOTAL SUPPLY"
-                name="TotalSupply"
-                classname={"bg-primary py-7 px-4 text-xl!"}
-                placeholder="e.g. 1000000000"
-              />
+              <FormInput label="TOTAL SUPPLY" name="TotalSupply" classname={"bg-primary py-7 px-4 text-xl!"} placeholder="e.g. 1000000000" />
 
               <FormInput
                 label="DESCRIPTION"

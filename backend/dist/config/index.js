@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
 export const PORT = Number(process.env.PORT) || 4000;
+export const FRONTEND_URL = process.env.FRONTEND_URL;
 //# sourceMappingURL=index.js.map
