@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Toaster } from "react-hot-toast";
 import { WalletProvider } from "@/utils/ConnectWallet";
 
 const geistSans = Geist({
@@ -42,6 +43,7 @@ export default function RootLayout({
         <WalletProvider>
           <Navbar />
           {children}
+          <Toaster position="top-right" toastOptions={{style: {fontSize: "18px", paddingLeft: "17px", paddingRight: "17px"}}}/>
         </WalletProvider>
       </body>
     </html>
