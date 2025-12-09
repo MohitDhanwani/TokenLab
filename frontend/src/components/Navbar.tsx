@@ -1,5 +1,9 @@
+"use client";
+import { redirect } from "next/navigation";
 import { Button } from "./button";
 import Marquee from "react-fast-marquee";
+import ConnectWallet from "@/utils/ConnectWallet";
+import useWallet from "@/utils/ConnectWallet";
 
 interface NavbarProps {
   heading: string;
@@ -18,11 +22,13 @@ const NavbarItems: NavbarProps[] = [
 ];
 
 export default function Navbar() {
+  const { walletAddress, connectWallet, disconnectWallet } = useWallet();
+
   return (
     <>
       <div className="w-full flex items-center justify-between px-10 py-4">
         <div className="w-1/2">
-          <span className="text-3xl font-mono font-extrabold">
+          <span className="text-3xl font-mono font-extrabold hover:cursor-pointer" onClick={() => redirect("/")}>
             Token<span className="text-orange-600">Labs</span>
           </span>
         </div>
@@ -35,7 +41,16 @@ export default function Navbar() {
               </span>
             ))}
           </span>
-          <Button name={"Connect Wallet"} varient="primary" disabled={false} />
+          {walletAddress ? (
+            <Button
+              name={walletAddress.slice(0, 6) + "...." + walletAddress.slice(-4)}
+              varient="primary"
+              disabled={false}
+              onClick={disconnectWallet}
+            />
+          ) : (
+            <Button name={"Connect Wallet"} varient="primary" disabled={false} onClick={connectWallet} />
+          )}
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Space_Mono } from "next/font/google";
-import "./globals.css"
+import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { WalletProvider } from "@/utils/ConnectWallet";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,6 @@ const spaceMono = Space_Mono({
   variable: "--font-space-mono",
 });
 
-
 export const metadata: Metadata = {
   title: "TokenLabs",
   description: "Create your token without writing any single line of code | No Code platform to create Tokens",
@@ -38,12 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${playfair.variable} antialiased`}
-      >
-        <Navbar/>
-
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} ${spaceMono.variable} ${playfair.variable} antialiased`}>
+        <WalletProvider>
+          <Navbar />
+          {children}
+        </WalletProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 interface ButtonProps {
   varient: "primary" | "destructive";
   classname?: String;
-  disabled: boolean;
+  disabled?: boolean;
   name: String;
   onClick?: () => void;
 }
