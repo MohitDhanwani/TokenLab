@@ -6,8 +6,12 @@ import { Button } from "@/components/button";
 import { TokenFormSchema, TokenFormType } from "@/data/FormData";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import useWallet from "@/utils/ConnectWallet";
+import { Connection, Transaction } from "@solana/web3.js";
 
 export default function CreateToken() {
+  const { walletAddress } = useWallet();
+
   const form = useForm<TokenFormType>({
     resolver: zodResolver(TokenFormSchema),
     defaultValues: {
@@ -20,9 +24,28 @@ export default function CreateToken() {
   });
 
   const handleFormSubmit = async (data: TokenFormType) => {
-    console.log(`${process.env.NEXT_PUBLIC_BACKEND_URL}`);
-    const backendMintRequest = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintTokens`, data);
-    console.log(backendMintRequest);
+    if(!walletAddress){
+      return
+    }
+    const payload = { ...data, connectedWalletPublicKey: walletAddress };
+    const backendMintResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintTokens`, payload);
+    const response = await backendMintResponse.data;
+
+    const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+
+    const tx1 = Transaction.from(Buffer.from(response.mintTx, "base64"));
+    const signedTx1 = await (window as any).solana.signTransaction(tx1);
+    const signatureOne = await connection.sendRawTransaction(signedTx1.serialize());
+    await connection.confirmTransaction(signatureOne);
+
+    console.log("Mint Created ", signatureOne);
+
+    const tx2 = Transaction.from(Buffer.from(response.mintAndSupplyTx, "base64"));
+    const signedTx2 = await (window as any).solana.signTransaction(tx2);
+    const signatureTwo = await connection.sendRawTransaction(signedTx2.serialize());
+    await connection.confirmTransaction(signatureTwo);
+
+    console.log("Tokens Created ", signatureTwo);
   };
 
   return (
@@ -51,13 +74,13 @@ export default function CreateToken() {
 
               <FormInput
                 label="DESCRIPTION"
-                name="Descripiton"
+                name="Description"
                 classname={"bg-primary py-7 px-4 text-xl!"}
                 placeholder="Short description about your token utility and purpose"
                 descriptive={true}
               />
 
-              <Button varient="primary" disabled={false} name={"+ Create Now"} classname={"font-bold"} />
+              <Button varient="primary" disabled={false} name={"+ Create Now"} classname={"font-bold"} type="submit" />
             </form>
           </Form>
         </div>
