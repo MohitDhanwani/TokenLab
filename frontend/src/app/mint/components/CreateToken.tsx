@@ -49,8 +49,8 @@ export default function CreateToken() {
   };
 
   return (
-    <div className="w-full border-2 border-black mt-10 p-1">
-      <div className="w-full max-w-3xl border-2 border-black p-8 bg-white">
+    <div className="w-8/12 border-2 border-black mt-10 p-1">
+      <div className="max-w-xl border-2 border-black p-8 bg-white">
         <div className="flex flex-col gap-4">
           <div className="bg-black p-4 w-16 flex justify-center">
             <Box color="white" />

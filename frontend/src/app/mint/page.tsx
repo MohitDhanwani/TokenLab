@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import React from "react";
 import Wallet from "./components/Wallet";
 import CreateToken from "./components/CreateToken";
+import AllTokens from "./components/AllTokens";
 
 const MintPage = () => {
   return (
@@ -17,9 +18,12 @@ const MintPage = () => {
       </div>
 
       <div className="w-full flex justify-center">
-        <div className="flex items-start w-full max-w-7xl gap-10">
-             <Wallet />
-             <CreateToken/>
+        <div className="flex items-start justify-between w-full max-w-7xl gap-10">
+          <div className="flex flex-col w-full max-w-3xl">
+            <Wallet />
+            <AllTokens />
+          </div>
+            <CreateToken />
         </div>
       </div>
     </>

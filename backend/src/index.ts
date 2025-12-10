@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { PORT, FRONTEND_URL } from "./config/index.js";
 import { mintTokensRoute } from "./routes/mintToken.js";
+import { getAllTokens } from "./routes/getAllTokens.js";
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,7 @@ app.get("/get-api", (req, res) => {
 });
 
 app.use("/v1/mintTokens", mintTokensRoute);
+app.use("/v1/getAllTokens", getAllTokens);
 
 app.listen(PORT, () => {
   console.log("Server is running on port", PORT);
