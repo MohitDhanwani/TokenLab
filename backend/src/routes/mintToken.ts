@@ -13,6 +13,8 @@ import {
   LENGTH_SIZE,
 } from "@solana/spl-token";
 import { createInitializeInstruction, pack } from "@solana/spl-token-metadata";
+import { db } from "../db.js";
+import { TokenInformation } from "../schema.js";
 
 const router = express.Router();
 
@@ -118,6 +120,17 @@ router.post("/", async (req, res) => {
     //create the serialized transaction and send to frontend to let user wallet sign them
     const serializedMintTx = mintTransaction.serialize({ requireAllSignatures: false }).toString("base64");
     const serializedMintingTx = mintingAndTokenAccountTransaction.serialize({ requireAllSignatures: false }).toString("base64");
+
+    await db.insert(TokenInformation).values({
+      mintAddress: mintAddress.publicKey.toBase58(),
+      tokenName: TokenName,
+      tokenSymbol: Symbol,
+      ownerWallet: owner.toBase58(),
+      decimals: convertedDecimals,
+      initialSupply: convertedTotalSupply,
+      currentTotalSupply: convertedTotalSupply,
+      description: Description,
+    });
 
     return res.status(200).json({
       success: true,

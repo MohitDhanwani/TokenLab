@@ -2,6 +2,8 @@ import express from "express";
 import { SystemProgram, Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ID, createAssociatedTokenAccountInstruction, createMintToInstruction, getAssociatedTokenAddress, ExtensionType, getMintLen, createInitializeMetadataPointerInstruction, createInitializeMintInstruction, TYPE_SIZE, LENGTH_SIZE, } from "@solana/spl-token";
 import { createInitializeInstruction, pack } from "@solana/spl-token-metadata";
+import { db } from "../db.js";
+import { TokenInformation } from "../schema.js";
 const router = express.Router();
 router.post("/", async (req, res) => {
     try {
@@ -33,8 +35,7 @@ router.post("/", async (req, res) => {
             programId: TOKEN_2022_PROGRAM_ID,
         });
         // Initialize metadata pointer (points to the mint itself)
-        const initializeMetadataPointerInstruction = createInitializeMetadataPointerInstruction(mintAddress.publicKey, owner, // authority
-        mintAddress.publicKey, // metadata address (same as mint)
+        const initializeMetadataPointerInstruction = createInitializeMetadataPointerInstruction(mintAddress.publicKey, owner, mintAddress.publicKey, // metadata address (same as mint)
         TOKEN_2022_PROGRAM_ID);
         //instruction to initialize mint account
         const mintAccountInstruction = createInitializeMintInstruction(mintAddress.publicKey, convertedDecimals, owner, owner, TOKEN_2022_PROGRAM_ID);
@@ -69,6 +70,16 @@ router.post("/", async (req, res) => {
         //create the serialized transaction and send to frontend to let user wallet sign them
         const serializedMintTx = mintTransaction.serialize({ requireAllSignatures: false }).toString("base64");
         const serializedMintingTx = mintingAndTokenAccountTransaction.serialize({ requireAllSignatures: false }).toString("base64");
+        await db.insert(TokenInformation).values({
+            mintAddress: mintAddress.publicKey.toBase58(),
+            tokenName: TokenName,
+            tokenSymbol: Symbol,
+            ownerWallet: owner.toBase58(),
+            decimals: convertedDecimals,
+            initialSupply: convertedTotalSupply,
+            currentTotalSupply: convertedTotalSupply,
+            description: Description,
+        });
         return res.status(200).json({
             success: true,
             mintAddress: mintAddress.publicKey.toBase58(),

@@ -27,12 +27,11 @@ export default function CreateToken() {
   const handleFormSubmit = async (data: TokenFormType) => {
     if (!walletAddress) {
       toast.error("Install Phantom Wallet before proceeding further");
+      return;
     }
     const payload = { ...data, connectedWalletPublicKey: walletAddress };
     const backendMintResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintTokens`, payload);
     const response = await backendMintResponse.data;
-
-    console.log("resposne - ", response);
 
     const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
@@ -41,14 +40,10 @@ export default function CreateToken() {
     const signatureOne = await connection.sendRawTransaction(signedTx1.serialize());
     await connection.confirmTransaction(signatureOne);
 
-    console.log("signature one", signatureOne);
-
     const tx2 = Transaction.from(Buffer.from(response.mintAndSupplyTx, "base64"));
     const signedTx2 = await (window as any).solana.signTransaction(tx2);
     const signatureTwo = await connection.sendRawTransaction(signedTx2.serialize());
     await connection.confirmTransaction(signatureTwo);
-
-    console.log("signature two", signatureTwo);
 
     toast.success("Tokens created successfully! Please check your wallet");
   };
