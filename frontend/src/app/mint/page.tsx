@@ -6,7 +6,7 @@ import AllTokens from "./components/AllTokens";
 import ManageTokensTab from "./components/ManageTokensTab";
 
 const MintPage = () => {
-  const [activeTab, setActiveTab] = useState("CREATE NEW");
+  const [activeTab, setActiveTab] = useState("CREATE");
 
   return (
     <>

@@ -6,9 +6,6 @@ const route = express.Router();
 
 route.get("/", async (req, res) => {
   try {
-    console.log("entering backedning for tokens");
-    console.log(req.query);
-
     const { walletAddress: connectedWallet } = req.query;
 
     if (!connectedWallet || typeof connectedWallet !== "string") {
@@ -16,8 +13,6 @@ route.get("/", async (req, res) => {
     }
 
     const allTokensData = await db.select().from(TokenInformation).where(eq(TokenInformation.ownerWallet, connectedWallet));
-    console.log("all tokens from connected wallet", allTokensData);
-
     return res.status(200).json({ success: true, allWalletTokens: allTokensData });
   } catch (error) {
     console.error("Error in getting tokens for connected wallet", error);

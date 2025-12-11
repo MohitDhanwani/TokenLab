@@ -3,6 +3,7 @@ import useWallet from "@/utils/ConnectWallet";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Lock, Settings } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface Token {
   id: string;
@@ -10,6 +11,7 @@ interface Token {
   tokenSymbol: string;
   description: string;
   currentTotalSupply: string;
+  mintAddress: string;
 }
 
 export default function ManageTokensTab() {
@@ -27,6 +29,11 @@ export default function ManageTokensTab() {
     getAllWalletTokens();
   }, [walletAddress]);
 
+  const handleTokenDetail = (tokenAddress: string) => {
+    console.log("token address - ", tokenAddress);
+    redirect(`/mint/${tokenAddress}`)
+  }
+
   return (
     <div className="w-full flex justify-center">
       <div className="w-9/12">
@@ -36,10 +43,12 @@ export default function ManageTokensTab() {
 
         <div className="grid grid-cols-3 gap-6 mt-10">
           {connectedWalletTokens.map((token, index) => (
-            <div className="border-2 border-black px-6 py-6 flex flex-col gap-5 bg-white hover:-translate-y-3 transition-all duration-300 hover:cursor-pointer hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
+            <div className="border-2 border-black px-6 py-6 flex flex-col gap-5 bg-white hover:-translate-y-3 transition-all duration-300 hover:cursor-pointer hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]" onClick={() => handleTokenDetail(token.mintAddress)}>
               <div key={index} className="flex justify-between">
                 <div
-                  className={`h-14 w-16 text-sm p-2 border-2 border-black flex items-center justify-center text-white ${index % 2 !== 0 ? "bg-orange-600" : "bg-black"}`}
+                  className={`h-14 w-16 text-sm p-2 border-2 border-black flex items-center justify-center text-white ${
+                    index % 2 !== 0 ? "bg-orange-600" : "bg-gray-800"
+                  }`}
                 >
                   {token.tokenSymbol}
                 </div>
