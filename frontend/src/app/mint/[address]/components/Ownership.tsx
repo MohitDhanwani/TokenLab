@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Overview from "./Overview";
+import Authorities from "./Authorities";
 
 export default function Ownership() {
   const [activeTab, setActiveTab] = useState("OVERVIEW");
@@ -28,6 +29,7 @@ export default function Ownership() {
 
       <div>
         {activeTab === "OVERVIEW" && <Overview/>}
+        {activeTab === "AUTHORITIES" && <Authorities/>}
       </div>
     </div>
   );
