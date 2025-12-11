@@ -1,7 +1,10 @@
 import { NoFocusInput } from "@/components/NoFocusInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { LucideIcon, RefreshCcwIcon, Flame } from "lucide-react";
+import { Connection, Transaction } from "@solana/web3.js";
+import axios from "axios";
+import { Flame, LucideIcon, RefreshCcwIcon } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 
 interface CardType {
   heading: string;
@@ -30,6 +33,38 @@ const Card: CardType[] = [
 ];
 
 export default function Overview() {
+  const tokenMintAddress = useParams();
+  const [amount, setAmount] = useState("");
+
+  const handleElementButton = async (buttonText: string) => {
+    if (buttonText === "MINT") {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/getToken`, { params: { tokenToFind: tokenMintAddress.address } });
+      const responseData = await response.data.data;
+
+      if (responseData[0].mintAuthorityUsed == false) {
+        const payload = {
+          mintAddress: responseData[0].mintAddress,
+          ownerWallet: responseData[0].ownerWallet,
+          mintAmount: amount,
+          decimals: responseData[0].decimals,
+        };
+        const mintTokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintMoreTokens`, { payload });
+
+        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+        const tx = Transaction.from(Buffer.from(mintTokenResponse.data.transaction, "base64"));
+
+        const signed = await (window as any).solana.signTransaction(tx);
+        const transaction = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(transaction);
+
+        const updatePayload = { mintAddress: tokenMintAddress.address, mintAmount: amount };
+        await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/updateSupply`, updatePayload);
+      } else {
+        alert("Already minted once");
+      }
+    }
+  };
+
   return (
     <div>
       <div className="p-8 flex w-full justify-between mt-6">
@@ -42,11 +77,20 @@ export default function Overview() {
               </div>
 
               <h3 className="font-mono text-gray-500 mt-4 text-sm">{element.shortDescription}</h3>
-              <NoFocusInput className="h-10 mt-6 border-0 border-b-2 border-b-gray-500 rounded-none" placeholder="Amount" />
+              <NoFocusInput
+                className="h-10 mt-6 border-0 border-b-2 border-b-gray-500 rounded-none"
+                placeholder="Amount"
+                onChange={(e) => setAmount(e.target.value)}
+              />
 
               <div className="gap-2 mt-6 flex justify-between items-center">
                 <h3 className="text-red-400 text-sm font-mono">{element.altText.length > 0 && element.altText}</h3>
-                <Button variant={"primary"} className="text-sm rounded-none py-4 px-4" size={"lg"}>
+                <Button
+                  variant={"primary"}
+                  className="text-sm rounded-none py-4 px-4"
+                  size={"lg"}
+                  onClick={() => handleElementButton(element.buttonText)}
+                >
                   {element.buttonText}
                 </Button>
               </div>
