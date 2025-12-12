@@ -8,7 +8,8 @@
     "watch": "tsc -b",
     "start": "node dist/index.js",
     "serve": "node dist/index.js",
-    "dev": "concurrently \"pnpm run serve\" \"pnpm run watch\""
+    "dev": "concurrently \"pnpm run serve\" \"pnpm run watch\"",
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
