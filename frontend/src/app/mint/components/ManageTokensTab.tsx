@@ -3,7 +3,7 @@ import useWallet from "@/utils/ConnectWallet";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Lock, Settings } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 interface Token {
@@ -18,6 +18,7 @@ interface Token {
 export default function ManageTokensTab() {
   const [connectedWalletTokens, setConnectedWalletTokens] = useState<Token[]>([]);
   const { walletAddress } = useWallet();
+  const router = useRouter();
 
   useEffect(() => {
     const getAllWalletTokens = async () => {
@@ -36,7 +37,7 @@ export default function ManageTokensTab() {
 
   const handleTokenDetail = (tokenAddress: string) => {
     console.log("token address - ", tokenAddress);
-    redirect(`/mint/${tokenAddress}`)
+    router.push(`/mint/${tokenAddress}`)
   }
 
   return (

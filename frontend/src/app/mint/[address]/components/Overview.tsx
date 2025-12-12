@@ -1,5 +1,6 @@
 import { NoFocusInput } from "@/components/NoFocusInput";
 import { Button } from "@/components/ui/button";
+import useWallet from "@/utils/ConnectWallet";
 import { Connection, Transaction } from "@solana/web3.js";
 import axios from "axios";
 import { Flame, LucideIcon, RefreshCcwIcon } from "lucide-react";
@@ -35,9 +36,17 @@ const Card: CardType[] = [
 
 export default function Overview() {
   const tokenMintAddress = useParams();
+  const { walletAddress } = useWallet();
   const [amount, setAmount] = useState("");
+  const [mintLoading, setMintLoading] = useState(false);
+  const [burnLoading, setBurnLoading] = useState(false);
 
   const handleElementButton = async (buttonText: string) => {
+    if (!walletAddress) {
+      toast.error("Please connect your wallet before proceeding further");
+      return;
+    }
+
     const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/getToken`, { params: { tokenToFind: tokenMintAddress.address } });
     const responseData = await response.data.data;
 
@@ -50,13 +59,15 @@ export default function Overview() {
 
     const connection = new Connection("https://api.devnet.solana.com", "confirmed");
 
+    // Disable the correct button
+    if (buttonText === "MINT") setMintLoading(true);
+    if (buttonText === "BURN SUPPLY") setBurnLoading(true);
+
+    // MINT LOGIC
     if (buttonText === "MINT" && responseData[0]?.mintAuthorityUsed == false) {
       try {
-        console.log("minting more tokens from frontend");
         const mintTokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintMoreTokens`, { payload });
-
         const tx = Transaction.from(Buffer.from(mintTokenResponse.data.transaction, "base64"));
-
         const signed = await (window as any).solana.signTransaction(tx);
         const transaction = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(transaction);
@@ -64,20 +75,21 @@ export default function Overview() {
         const updatePayload = { mintAddress: tokenMintAddress.address, amount: amount, isMinting: true };
         await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/updateSupply`, updatePayload);
         toast.success("Tokens minted successfully!!");
-        // @ts-ignore
       } catch (error: any) {
         toast.error("Error in minting more tokens", error);
+      } finally {
+        setMintLoading(false);
       }
     } else if (buttonText === "MINT" && responseData[0]?.mintAuthorityUsed == true) {
       toast.error("The tokens have already been minted once");
+      setMintLoading(false);
     }
 
+    // BURN LOGIC
     if (buttonText === "BURN SUPPLY" && responseData[0]?.freezeAuthorityUsed == false) {
       try {
         const burnTokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/burnTokens`, { payload });
-
         const tx = Transaction.from(Buffer.from(burnTokenResponse.data.transaction, "base64"));
-
         const signed = await (window as any).solana.signTransaction(tx);
         const transaction = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(transaction);
@@ -85,12 +97,14 @@ export default function Overview() {
         const updatePayload = { mintAddress: tokenMintAddress.address, amount: amount, isMinting: false };
         await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/updateSupply`, updatePayload);
         toast.success("Tokens burnt successfully!!");
-        // @ts-ignore
       } catch (error: any) {
         toast.error("Error in burning tokens", error.message);
+      } finally {
+        setBurnLoading(false);
       }
     } else if (buttonText === "BURN SUPPLY" && responseData[0]?.freezeAuthorityUsed == true) {
       toast.error("The tokens have been already burnt once");
+      setBurnLoading(false);
     }
   };
 
@@ -119,6 +133,7 @@ export default function Overview() {
                   className="text-sm rounded-none py-4 px-4"
                   size={"lg"}
                   onClick={() => handleElementButton(element.buttonText)}
+                  disabled={(element.buttonText === "MINT" && mintLoading) || (element.buttonText === "BURN SUPPLY" && burnLoading)}
                 >
                   {element.buttonText}
                 </Button>

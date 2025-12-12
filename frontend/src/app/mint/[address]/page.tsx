@@ -2,7 +2,7 @@
 import useWallet from "@/utils/ConnectWallet";
 import axios from "axios";
 import { ArrowLeft, Dot } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TokenDetailExpanded from "./components/TokenDetailExpanded";
 import Ownership from "./components/Ownership";
@@ -24,6 +24,7 @@ export type TokenInfo = {
 const TokenDetails = () => {
   const tokenMintAddress = useParams();
   const { walletAddress } = useWallet();
+  const router = useRouter();
   const [tokenData, setTokenData] = useState<TokenInfo[]>();
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const TokenDetails = () => {
         {/*MAIN HEADING POINT*/}
         <div className="flex w-full justify-between mt-20">
           <div className="flex gap-5">
-            <div className="border-2 border-black flex justify-center items-center p-2 h-10 w-10 hover:bg-black hover:cursor-pointer transition-all duration-200">
+            <div className="border-2 border-black flex justify-center items-center p-2 h-10 w-10 hover:bg-black hover:cursor-pointer transition-all duration-200" onClick={() => router.back()}>
               <ArrowLeft className="hover:text-white" />
             </div>
             <div className="flex flex-col gap-0.5">

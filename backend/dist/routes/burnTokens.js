@@ -6,9 +6,7 @@ import { getAssociatedTokenAddress, createBurnInstruction, TOKEN_2022_PROGRAM_ID
 const route = express.Router();
 route.post("/", async (req, res) => {
     try {
-        console.log("entering burn token api");
         const { mintAddress, ownerWallet, decimals, amount } = req.body.payload;
-        console.log("burn data", mintAddress, ownerWallet, decimals, amount);
         const convertedBurnAmount = Number(amount) * 10 ** Number(decimals);
         const connection = new Connection("https://api.devnet.solana.com", "confirmed");
         const mintPubkey = new PublicKey(mintAddress);
