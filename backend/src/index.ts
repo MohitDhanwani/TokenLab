@@ -6,6 +6,7 @@ import { getAllTokens } from "./routes/getAllTokens.js";
 import { getToken } from "./routes/getToken.js";
 import { mintMoreTokens } from "./routes/mintMoreTokens.js";
 import { updateSupply } from "./routes/updateSupply.js";
+import { burnTokens } from "./routes/burnTokens.js";
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,7 @@ app.use("/v1/getAllTokens", getAllTokens);
 app.use("/v1/getToken", getToken);
 app.use("/v1/mintMoreTokens", mintMoreTokens);
 app.use("/v1/updateSupply", updateSupply);
+app.use("/v1/burnTokens", burnTokens);
 
 app.listen(PORT, () => {
   console.log("Server is running on port", PORT);

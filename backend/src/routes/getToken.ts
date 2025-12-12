@@ -6,20 +6,12 @@ const route = express.Router();
 
 route.get("/", async (req, res) => {
   try {
-    console.log("entering mint token get route");
+    console.log("finding token from reqeust");
     const { tokenToFind: tokenMintAddress } = req.query;
-    console.log(req.query);
-    console.log("tokenMintADdress", tokenMintAddress);
-
-
-    console.log("before db call");
-
     const tokenInfo = await db
       .select()
       .from(TokenInformation)
       .where(eq(TokenInformation.mintAddress, tokenMintAddress as string));
-
-    console.log("After db call", tokenInfo);
 
     return res.status(200).json({ success: true, data: tokenInfo });
   } catch (error) {

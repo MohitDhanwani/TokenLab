@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Lock, Settings } from "lucide-react";
 import { redirect } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface Token {
   id: string;
@@ -20,6 +21,10 @@ export default function ManageTokensTab() {
 
   useEffect(() => {
     const getAllWalletTokens = async () => {
+      if(!walletAddress){
+        toast.error("Please connect your wallet before getting your tokens");
+        return;
+      }
       const walletTokens = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/getAllTokens`, {
         params: { walletAddress },
       });
@@ -43,7 +48,7 @@ export default function ManageTokensTab() {
 
         <div className="grid grid-cols-3 gap-6 mt-10">
           {connectedWalletTokens.map((token, index) => (
-            <div className="border-2 border-black px-6 py-6 flex flex-col gap-5 bg-white hover:-translate-y-3 transition-all duration-300 hover:cursor-pointer hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]" onClick={() => handleTokenDetail(token.mintAddress)}>
+            <div className="border-2 border-black px-6 py-6 flex flex-col gap-5 bg-white hover:-translate-y-3 transition-all duration-300 hover:cursor-pointer hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]" onClick={() => handleTokenDetail(token.mintAddress)} key={index}>
               <div key={index} className="flex justify-between">
                 <div
                   className={`h-14 w-16 text-sm p-2 border-2 border-black flex items-center justify-center text-white ${

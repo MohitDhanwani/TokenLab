@@ -7,9 +7,8 @@ import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 const route = express.Router();
 route.post("/", async (req, res) => {
     try {
-        const { mintAddress, ownerWallet, mintAmount, decimals } = req.body.payload;
-        console.log("entering minting more tokens", mintAddress, ownerWallet, mintAmount);
-        const convertedMintAmount = Number(mintAmount) * 10 ** Number(decimals);
+        const { mintAddress, ownerWallet, amount, decimals } = req.body.payload;
+        const convertedMintAmount = Number(amount) * 10 ** Number(decimals);
         const connection = new Connection("https://api.devnet.solana.com", "confirmed");
         const mintPubkey = new PublicKey(mintAddress);
         const ownerPubkey = new PublicKey(ownerWallet);

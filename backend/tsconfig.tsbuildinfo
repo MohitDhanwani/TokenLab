@@ -1,1 +1,1 @@
-{"root":["./src/db.ts","./src/index.ts","./src/schema.ts","./src/config/index.ts","./src/routes/getalltokens.ts","./src/routes/gettoken.ts","./src/routes/mintmoretokens.ts","./src/routes/minttoken.ts","./src/routes/updatesupply.ts"],"version":"5.9.3"}
+{"root":["./src/db.ts","./src/index.ts","./src/schema.ts","./src/config/index.ts","./src/routes/burntokens.ts","./src/routes/getalltokens.ts","./src/routes/gettoken.ts","./src/routes/mintmoretokens.ts","./src/routes/minttoken.ts","./src/routes/updatesupply.ts"],"version":"5.9.3"}

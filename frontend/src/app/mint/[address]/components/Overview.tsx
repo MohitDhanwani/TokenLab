@@ -5,6 +5,7 @@ import axios from "axios";
 import { Flame, LucideIcon, RefreshCcwIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface CardType {
   heading: string;
@@ -37,31 +38,59 @@ export default function Overview() {
   const [amount, setAmount] = useState("");
 
   const handleElementButton = async (buttonText: string) => {
-    if (buttonText === "MINT") {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/getToken`, { params: { tokenToFind: tokenMintAddress.address } });
-      const responseData = await response.data.data;
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/getToken`, { params: { tokenToFind: tokenMintAddress.address } });
+    const responseData = await response.data.data;
 
-      if (responseData[0].mintAuthorityUsed == false) {
-        const payload = {
-          mintAddress: responseData[0].mintAddress,
-          ownerWallet: responseData[0].ownerWallet,
-          mintAmount: amount,
-          decimals: responseData[0].decimals,
-        };
+    const payload = {
+      mintAddress: responseData[0].mintAddress,
+      ownerWallet: responseData[0].ownerWallet,
+      amount: amount,
+      decimals: responseData[0].decimals,
+    };
+
+    const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+
+    if (buttonText === "MINT" && responseData[0]?.mintAuthorityUsed == false) {
+      try {
+        console.log("minting more tokens from frontend");
         const mintTokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/mintMoreTokens`, { payload });
 
-        const connection = new Connection("https://api.devnet.solana.com", "confirmed");
         const tx = Transaction.from(Buffer.from(mintTokenResponse.data.transaction, "base64"));
 
         const signed = await (window as any).solana.signTransaction(tx);
         const transaction = await connection.sendRawTransaction(signed.serialize());
         await connection.confirmTransaction(transaction);
 
-        const updatePayload = { mintAddress: tokenMintAddress.address, mintAmount: amount };
+        const updatePayload = { mintAddress: tokenMintAddress.address, amount: amount, isMinting: true };
         await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/updateSupply`, updatePayload);
-      } else {
-        alert("Already minted once");
+        toast.success("Tokens minted successfully!!");
+        // @ts-ignore
+      } catch (error: any) {
+        toast.error("Error in minting more tokens", error);
       }
+    } else if (buttonText === "MINT" && responseData[0]?.mintAuthorityUsed == true) {
+      toast.error("The tokens have already been minted once");
+    }
+
+    if (buttonText === "BURN SUPPLY" && responseData[0]?.freezeAuthorityUsed == false) {
+      try {
+        const burnTokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/burnTokens`, { payload });
+
+        const tx = Transaction.from(Buffer.from(burnTokenResponse.data.transaction, "base64"));
+
+        const signed = await (window as any).solana.signTransaction(tx);
+        const transaction = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction(transaction);
+
+        const updatePayload = { mintAddress: tokenMintAddress.address, amount: amount, isMinting: false };
+        await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/updateSupply`, updatePayload);
+        toast.success("Tokens burnt successfully!!");
+        // @ts-ignore
+      } catch (error: any) {
+        toast.error("Error in burning tokens", error.message);
+      }
+    } else if (buttonText === "BURN SUPPLY" && responseData[0]?.freezeAuthorityUsed == true) {
+      toast.error("The tokens have been already burnt once");
     }
   };
 
